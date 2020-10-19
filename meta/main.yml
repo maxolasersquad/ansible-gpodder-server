@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: gpodder-server
+  author: David Baucum
+  description: Base configuration for a new Ubuntu GNU/Linux box
+  issue_tracker_url: >
+    https://gitlab.com/maxolasersquad/ansible-gpodder-server/issues
+  license: CC-BY-4.0
+  min_ansible_version: 2.4
+  platforms:
+    - name: Ubuntu
+      versions:
+        - bionic
+        - disco dingo
+  galaxy_tags: []
+dependencies: []

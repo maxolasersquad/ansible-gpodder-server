@@ -1,0 +1,11 @@
+[Unit]
+Description=A useful description to be shown in command-line tools
+
+[Service]
+Restart=on-failure
+WorkingDirectory={{ location }}/mygpo
+ExecStart={{ location }}/mygpo/venv/bin/daphne --bind {{ listen_ip }} --port {{ listen_port }} mygpo.asgi:application
+User=gpodder
+
+[Install]
+WantedBy=multi-user.target

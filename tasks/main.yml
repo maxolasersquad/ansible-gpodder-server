@@ -1,0 +1,90 @@
+---
+- name: Download latest version
+  git:
+    repo: git://github.com/gpodder/mygpo.git
+    dest: '{{ location }}/mygpo'
+    version: '{{ version }}'
+
+- name: Install dependencies
+  package:
+    name:
+      - libpq-dev
+      - libjpeg-dev
+      - zlib1g-dev
+      - libwebp-dev
+      - build-essential
+      - python3-dev
+      - virtualenv
+      - libffi-dev
+  become: yes
+
+- name: Check if venv has been created
+  stat:
+    path: '{{ location }}/mygpo/venv'
+  register: venv_created
+
+- name: Create virtual environment
+  command: virtualenv venv
+  args:
+    chdir: '{{ location }}/mygpo'
+  when: not venv_created.stat.exists
+
+- name: Install requirements
+  pip:
+    requirements: '{{ location }}/mygpo/requirements.txt'
+    virtualenv: '{{ location }}/mygpo/venv'
+
+- name: Install dev requirements
+  pip:
+    requirements: '{{ location }}/mygpo/requirements-dev.txt'
+    virtualenv: '{{ location }}/mygpo/venv'
+  when: dev
+
+- name: Install doc requirements
+  pip:
+    requirements: '{{ location }}/mygpo/requirements-doc.txt'
+    virtualenv: '{{ location }}/mygpo/venv'
+  when: doc
+
+- name: Install setup requirements
+  pip:
+    requirements: '{{ location }}/mygpo/requirements-setup.txt'
+    virtualenv: '{{ location }}/mygpo/venv'
+  when: setup
+
+- name: Install test requirements
+  pip:
+    requirements: '{{ location }}/mygpo/requirements-test.txt'
+    virtualenv: '{{ location }}/mygpo/venv'
+  when: test
+
+- name: Install Daphne ASGI server
+  pip:
+    name: daphne
+    virtualenv: '{{ location }}/mygpo/venv'
+
+- name: Open port
+  ufw:
+    port: '{{ listen_port }}'
+    rule: allow
+  become: yes
+  become_user: root
+  when: expose|bool
+
+- name: Create systemd service file
+  template:
+    src: templates/gpodder.service.j1
+    dest: /etc/systemd/system/gpodder.service
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+  become_user: root
+
+- name: Activate service
+  systemd:
+    name: gpodder
+    enabled: true
+    state: started
+  become: yes
+  become_user: root

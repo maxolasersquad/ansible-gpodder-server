@@ -1,0 +1,9 @@
+---
+version: master
+dev: false
+doc: true
+setup: true
+test: false
+listen_ip: 127.0.0.1
+listen_port: 8080
+expose: false
